@@ -8,7 +8,7 @@ const options = {
       version: "1.0.0",
       description: "Backend API for Plat Besi Murah",
     },
-    servers: [{ url: "http://localhost:5000/api" }],
+    servers: [{ url: "http://localhost:8080/api" }],
   },
   apis: ["src/api/controllers/*/*.js", "src/api/controllers/*/*/*.js"],
 };
