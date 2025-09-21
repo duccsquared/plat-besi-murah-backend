@@ -1,8 +1,9 @@
 import express from "express";
-import { addition } from "../controllers/testCategory/addition.js";
+import { addition, runSql } from "../controllers/testCategory/index.js";
 
 const router = express.Router();
 
 router.post("/addition", addition);
+router.post("/runSql", runSql);
 
 export default router;
