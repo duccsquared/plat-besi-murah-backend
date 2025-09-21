@@ -13,7 +13,7 @@ export const getArticle = async (req, res) => {
     if (!articleId) {
       // Return list of articles only
       const result = await pool.query(
-        "SELECT id, title, subtitle, author, publish_date FROM article ORDER BY publish_date DESC"
+        "SELECT id, title, subtitle, author, publish_date FROM article ORDER BY publish_date DESC, id DESC"
       );
       return formatOutput(res, 200, result.rows);
     } else {
