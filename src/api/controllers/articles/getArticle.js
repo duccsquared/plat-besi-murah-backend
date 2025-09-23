@@ -47,7 +47,11 @@ export const getArticle = async (req, res) => {
             "SELECT data FROM image WHERE id = $1",
             [row.image_id]
           );
-          const imgData = imgRes.rows[0]?.data?.toString("base64") || null;
+          const imgData = imgRes.rows[0]?.data?.toString("base64")
+            .replace('dataimage/jpegbase64','data:image/jpeg;base64,')
+            .replace('dataimage/pngbase64','data:image/png;base64,')
+            .replace('dataimage/jpgbase64','data:image/jpg;base64,')
+             || null;
           sections.push({
             id: row.id,
             type: "image",
