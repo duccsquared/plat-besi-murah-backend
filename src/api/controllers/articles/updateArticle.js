@@ -38,7 +38,7 @@ export const updateArticle = async (req, res) => {
 
         await client.query(
           "INSERT INTO article_body (article_id, type, body, image_id, position) VALUES ($1,$2,$3,$4,$5)",
-          [id, section.type, section.type === "text" ? section.content : null, imageId, i]
+          [id, section.type, section.type !== "image" ? section.content : null, imageId, i]
         );
       }
     }

@@ -36,13 +36,7 @@ export const getArticle = async (req, res) => {
 
       const sections = [];
       for (let row of bodyRes.rows) {
-        if (row.type === "text") {
-          sections.push({
-            id: row.id,
-            type: "text",
-            content: row.body,
-          });
-        } else if (row.type === "image" && row.image_id) {
+        if (row.type === "image" && row.image_id) {
           const imgRes = await pool.query(
             "SELECT data FROM image WHERE id = $1",
             [row.image_id]
@@ -56,6 +50,13 @@ export const getArticle = async (req, res) => {
             id: row.id,
             type: "image",
             content: imgData,
+          });
+        }
+        else {
+          sections.push({
+            id: row.id,
+            type: row.type,
+            content: row.body,
           });
         }
       }

@@ -34,7 +34,7 @@ export const createArticle = async (req, res) => {
 
       await client.query(
         "INSERT INTO article_body (article_id, type, body, image_id, position) VALUES ($1,$2,$3,$4,$5)",
-        [articleId, section.type, section.type === "text" ? section.content : null, imageId, i]
+        [articleId, section.type, section.type !== "image" ? section.content : null, imageId, i]
       );
     }
 
