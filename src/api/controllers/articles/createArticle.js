@@ -1,6 +1,6 @@
 import pool from "../../utils/db.js";
 import { formatOutput } from "../../utils/index.js";
-
+import sharp from "sharp";
 /**
  * POST /article
  * - Creates new article + body + images
@@ -25,6 +25,8 @@ export const createArticle = async (req, res) => {
       let imageId = null;
 
       if (section.type === "image" && section.content) {
+        // Await the compression so we pass a Buffer (not a Promise) to the DB
+        // const compressed = await compressImageBase64(section.content, true);
         const imgRes = await client.query(
           "INSERT INTO image (name, data) VALUES ($1,$2) RETURNING id",
           [`image_${Date.now()}`, Buffer.from(section.content, "base64")]
@@ -45,6 +47,55 @@ export const createArticle = async (req, res) => {
     return formatOutput(res, 500, null, err.message);
   } finally {
     client.release();
+  }
+};
+
+
+const bufferToDataURI = (buffer, mime = "image/webp") => {
+  return `data:${mime};base64,${buffer.toString("base64")}`;
+};
+
+/**
+ * Compress base64 image input and return either a Buffer (default) or a data URI string.
+ * @param {string|Buffer} base64String - data URI, raw base64 string, or Buffer
+ * @param {boolean} [asDataUri=false] - when true, returns a data URI string (data:...;base64,...)
+ * @returns {Promise<Buffer|string>}
+ */
+const compressImageBase64 = async (base64String, asDataUri = false) => {
+  // Handle different possible inputs: Buffer, data URI string, plain base64 string
+  if (!base64String) {
+    throw new Error("No image data provided");
+  }
+
+  let buffer;
+  if (Buffer.isBuffer(base64String)) {
+    buffer = base64String;
+  } else if (typeof base64String === "string") {
+    // Remove data URI prefix if present: data:image/png;base64,....
+    const match = base64String.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.*)$/);
+    const rawBase64 = match ? match[2] : base64String.replace(/\s/g, "");
+
+    try {
+      buffer = Buffer.from(rawBase64, "base64");
+    } catch (e) {
+      throw new Error("Invalid base64 image data");
+    }
+  } else {
+    throw new Error("Unsupported image input type");
+  }
+
+  try {
+    const compressedBuffer = await sharp(buffer)
+      .toFormat("webp", { quality: 70 })
+      .toBuffer();
+
+    if (asDataUri) {
+      // Return a webp data URI so frontend gets the prefix it expects
+      return bufferToDataURI(compressedBuffer, "image/webp");
+    }
+    return compressedBuffer;
+  } catch (err) {
+    throw new Error("Failed to process image: " + err.message);
   }
 };
 

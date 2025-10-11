@@ -45,6 +45,7 @@ export const getArticle = async (req, res) => {
             .replace('dataimage/jpegbase64','data:image/jpeg;base64,')
             .replace('dataimage/pngbase64','data:image/png;base64,')
             .replace('dataimage/jpgbase64','data:image/jpg;base64,')
+            .replace('dataimage/webpbase64','data:image/webp;base64,')
              || null;
           sections.push({
             id: row.id,
